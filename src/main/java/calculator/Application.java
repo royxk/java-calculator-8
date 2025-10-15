@@ -12,8 +12,8 @@ public class Application {
         // 2. 입력 예시 한줄 받기
         String input = Console.readLine();
 
-        // 3. (로직 구현 예정) -> 입출력 확인을 위해 초기 0 으로 셋팅
-        int result = 0;
+        // result = 0 메서드 호출
+        int result = StringCalculator.add(input);
 
         // 4. 결과 출력 형식
         System.out.println("결과 : " + result);
