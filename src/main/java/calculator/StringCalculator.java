@@ -7,10 +7,23 @@ public class StringCalculator {
             return 0;
         }
 
-        // 2. 기본 구분자 (, or :)로 분리
-        String[] tokens = input.split("[,:]");
+        String numbers = input; // 실제 숫자 부분만
+        String delimiter = "[,:]";
 
-        //3. 정수로 변환해 합산 (검증은 다음에서 강화)
+        // 2. 커스텀 구분자로 여부 확인
+        if(input.startsWith("//")){
+            int newLineIndex = input.indexOf("\n"); // \n 위치 찾기
+            delimiter = input.substring(2, newLineIndex); // //와 /n 사이 문자 추출
+            numbers = input.substring(newLineIndex + 1);
+
+            // 정규식 특수문자를 구분자로 사용할 떄 안전하게 정리.
+            delimiter = java.util.regex.Pattern.quote(delimiter);
+        }
+
+        //3. 분리
+        String[] tokens = numbers.split(delimiter);
+
+        //4. 합산
         int sum = 0;
         for (String token : tokens){
             String t = token.trim();
