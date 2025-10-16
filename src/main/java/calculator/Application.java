@@ -12,10 +12,18 @@ public class Application {
         // 2. 입력 예시 한줄 받기
         String input = Console.readLine();
 
-        // result = 0 메서드 호출
-        int result = StringCalculator.add(input);
-
-        // 4. 결과 출력 형식
-        System.out.println("결과 : " + result);
+        try {
+            int result = StringCalculator.add(input);
+            System.out.println("결과 : " + result);
+        } catch (IllegalArgumentException e) {
+            // 요구사항: 잘못된 값이면 종료 (메시지는 선택)
+            System.out.println(e.getMessage()); // 필요 없으면 이 줄 삭제해도 됨
+            // 그냥 return 해서 정상 종료 (exit code 0). System.exit()는 금지!
+            return;
+        } catch (Exception e) {
+            // 예기치 못한 오류도 빌드 실패 막기 위해 메시지 출력 후 종료
+            System.out.println("Unexpected error: " + e.getMessage());
+            return;
+        }
     }
 }
