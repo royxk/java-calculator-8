@@ -7,7 +7,17 @@ public class StringCalculator {
             return 0;
         }
 
-        // 로직 구현 다음 기능구현에서 진행
-        return 0;
+        // 2. 기본 구분자 (, or :)로 분리
+        String[] tokens = input.split("[,:]");
+
+        //3. 정수로 변환해 합산 (검증은 다음에서 강화)
+        int sum = 0;
+        for (String token : tokens){
+            String t = token.trim();
+            sum += Integer.parseInt(t);
+        }
+
+        return sum;
+
     }
 }
