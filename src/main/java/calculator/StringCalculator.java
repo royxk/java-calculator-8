@@ -3,62 +3,103 @@ package calculator;
 import java.util.regex.Pattern;
 
 public class StringCalculator {
-    public static int add(String input){
-        // 1. null, 빈 문자열, 공백만 있을 경우 -> 0 반환
-        if (input == null || input.length() == 0){
+    public static int add(String input) {
+        // 1. 공백 입력은 0
+        if (input == null || input.isBlank()) {
             return 0;
         }
 
         // 콘솔에서 입력한 "\n" 리터럴을 실제 개행으로 치환
-        input = input.replace("\\n", "\n");
+        input = normalizeInput(input);
 
-        String numbers = input;
-        String delimiter = "[,:]";
+        // 2. 구분자/본문 분리
+        Parsed parsed = extractDelimiterAndBody(input);
 
-        // 2. 커스텀 구분자로 여부 확인
-        if(input.startsWith("//")){
-            int newLineIndex = input.indexOf("\n"); // \n 위치 찾기
-            if (newLineIndex < 0 || newLineIndex == 2) {
-                throw new IllegalArgumentException("Invalid custom delimiter header");
-            }
-            String custom = input.substring(2, newLineIndex); // //와 /n 사이 문자 추출
-            numbers = input.substring(newLineIndex + 1);
-            delimiter = Pattern.quote(custom);
+        // 3) 토큰 분리
+        String[] tokens = splitTokens(parsed.body, parsed.delimiterRegex);
 
+        // 4) 검증 + 변환 + 합산
+        return sumTokens(tokens);
 
+    }
+
+        // -----------------HELPERS-------------------
+
+    // 콘솔에서 입력한 "\n" 리터럴을 실제 개행으로 치환
+    private static String normalizeInput(String s) {
+        return s.replace("\\n", "\n");
+    }
+
+    private static Parsed extractDelimiterAndBody(String input) {
+        final String defaultDelimiterRegex = "[,:]";
+        if (!input.startsWith("//")) {
+            return new Parsed(defaultDelimiterRegex, input);
         }
 
-        //3. 분리
-        String[] tokens = numbers.split(delimiter);
+        int nl = input.indexOf('\n');
+        if (nl < 0 || nl == 2) {
+            // // 뒤에 구분자 없이 곧바로 개행이거나 개행 자체가 없음
+            throw new IllegalArgumentException("Invalid custom delimiter header");
+        }
 
-        //4. 각 토큰 정수 여부 검사 + 변환 + 합산
+        String customDelimiter = input.substring(2, nl);
+        String body = input.substring(nl + 1);
+
+        // 정규식 특수문자 안전 처리
+        String safeRegex = Pattern.quote(customDelimiter);
+
+        return new Parsed(safeRegex, body);
+    }
+
+    private static String[] splitTokens(String input, String delimiterRegex) {
+        return input.split(delimiterRegex);
+    }
+
+    private static final class Parsed {
+        final String delimiterRegex;
+        final String body;
+
+        Parsed(String delimiterRegex, String body) {
+            this.delimiterRegex = delimiterRegex;
+            this.body = body;
+        }
+    }
+
+
+
+    // 각 토큰 검증 하고 변환 and 합산
+    private static int sumTokens(String[] tokens){
         int sum = 0;
         for (String token : tokens){
             String t = token.trim();
 
-            // check1 빈 토큰 검사
-            if (t.isEmpty()){
-                throw new IllegalArgumentException("Empty number token is not allowed.");
-            }
+            validateTokenNotEmpty(t);
+            validateTokenNumeric(t);
 
-            // check2 정수 형식 검사
-            // [0-9]+ → 숫자 1개 이상인지 확인
-            if (!t.matches("-?[0-9]+")) {  // (음수 검사도 포함)
-                throw new IllegalArgumentException("Non-numeric token: " + t);
-            }
+            int n = Integer.parseInt(t);
+            sum += n;
 
-            // check3 정수 변환
-            int num = Integer.parseInt(t);
-
-            // check4 음수 검사
-            if (num < 0) {
-                throw new IllegalArgumentException("Negative number not allowed: " + num);
-            }
-
-            sum += num;
         }
 
         return sum;
-
     }
+
+    private static void validateTokenNumeric(String token){
+        if(token.isEmpty()){
+            throw new IllegalArgumentException("Empty number token");
+        }
+    }
+
+    private static void validateTokenNotEmpty(String token){
+        if(token.isBlank()){
+            throw new IllegalArgumentException("Non-numeric token: " + token);
+        }
+    }
+
+    private static void validateNonNegative(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("Negative number not allowed: " + n);
+        }
+    }
+
 }
