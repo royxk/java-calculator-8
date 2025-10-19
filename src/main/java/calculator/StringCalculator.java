@@ -73,10 +73,20 @@ public class StringCalculator {
         for (String token : tokens){
             String t = token.trim();
 
+            // 1) 빈 토큰 검증하기
             validateTokenNotEmpty(t);
+
+            // 2) 정수 변환 (숫자x -> IllegalArgumentException)
+            final int n;
+            try{
+                n = Integer.parseInt(t);
+            } catch (NumberFormatException e){
+                throw new IllegalArgumentException("Non-numeric token: " + t);
+            }
+
+            // 3) 음수 검증
             validateTokenNumeric(t);
 
-            int n = Integer.parseInt(t);
             sum += n;
 
         }
@@ -91,8 +101,8 @@ public class StringCalculator {
     }
 
     private static void validateTokenNotEmpty(String token){
-        if(token.isBlank()){
-            throw new IllegalArgumentException("Non-numeric token: " + token);
+        if(token.isEmpty()){
+            throw new IllegalArgumentException("Empty number token");
         }
     }
 
