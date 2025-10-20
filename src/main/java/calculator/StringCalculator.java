@@ -27,7 +27,7 @@ public class StringCalculator {
 
     // 콘솔에서 입력한 "\n" 리터럴을 실제 개행으로 치환
     private static String normalizeInput(String s) {
-        return s.replace("\\n", "\n");
+        return s.replace("\\n", "\n").replace("\r\n", "\n");
     }
 
     private static Parsed extractDelimiterAndBody(String input) {
@@ -52,20 +52,8 @@ public class StringCalculator {
     }
 
     private static String[] splitTokens(String input, String delimiterRegex) {
-        return input.split(delimiterRegex);
+        return input.split(delimiterRegex, -1);
     }
-
-    private static final class Parsed {
-        final String delimiterRegex;
-        final String body;
-
-        Parsed(String delimiterRegex, String body) {
-            this.delimiterRegex = delimiterRegex;
-            this.body = body;
-        }
-    }
-
-
 
     // 각 토큰 검증 하고 변환 and 합산
     private static int sumTokens(String[] tokens){
@@ -85,13 +73,23 @@ public class StringCalculator {
             }
 
             // 3) 음수 검증
-            validateTokenNumeric(t);
+            validateNonNegative(n);
 
             sum += n;
 
         }
 
         return sum;
+    }
+
+    private static final class Parsed {
+        final String delimiterRegex;
+        final String body;
+
+        Parsed(String delimiterRegex, String body) {
+            this.delimiterRegex = delimiterRegex;
+            this.body = body;
+        }
     }
 
     private static void validateTokenNumeric(String token){
